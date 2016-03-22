@@ -107,8 +107,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Highscores"
-        android:id="@+id/button"
+        android:text="End Game"
+        android:id="@+id/endGame"
         android:layout_alignTop="@+id/newGame"
         android:layout_centerHorizontal="true" />
 
@@ -116,8 +116,72 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Quit"
-        android:id="@+id/button2"
-        android:layout_alignTop="@+id/button"
+        android:id="@+id/quitGame"
+        android:layout_alignTop="@+id/endGame"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="P1 Name"
+        android:id="@+id/p1Name"
+        android:layout_below="@+id/C1"
+        android:layout_toLeftOf="@+id/playerTurn"
+        android:layout_toStartOf="@+id/playerTurn"
+        android:textAlignment="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Draws"
+        android:id="@+id/draws"
+        android:layout_below="@+id/C3"
+        android:layout_centerHorizontal="true"
+        android:textAlignment="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="P2 Name"
+        android:id="@+id/p2Name"
+        android:layout_above="@+id/p2Score"
+        android:layout_toRightOf="@+id/endGame"
+        android:layout_toEndOf="@+id/endGame"
+        android:textAlignment="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="P1 Score"
+        android:id="@+id/p1Score"
+        android:layout_alignTop="@+id/drawScore"
+        android:layout_alignLeft="@+id/p1Name"
+        android:layout_alignStart="@+id/p1Name"
+        android:textAlignment="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Draw Score"
+        android:id="@+id/drawScore"
+        android:layout_below="@+id/p1Name"
+        android:layout_centerHorizontal="true"
+        android:textAlignment="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="P2 Score"
+        android:id="@+id/p2Score"
+        android:layout_alignTop="@+id/drawScore"
+        android:layout_alignRight="@+id/p2Name"
+        android:layout_alignEnd="@+id/p2Name"
+        android:textAlignment="center" />
 </RelativeLayout>
