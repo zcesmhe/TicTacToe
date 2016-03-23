@@ -1,6 +1,11 @@
 package com.example.mounirhedna.tictactoe;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -10,18 +15,33 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+
 public class MainActivity extends AppCompatActivity {
 
-    Button a1, a2, a3, b1, b2, b3, c1, c2, c3, newGame; //Creating button variables.
+    Button a1, a2, a3, b1, b2, b3, c1, c2, c3, newGame, endGame, quitGame; //Creating button variables.
     Button[] buttons;
     boolean xTurn = true; //True = X's turn, False = O's turn.
     boolean winnerFound = false;
     boolean gameOver = false;
     int numTurns = 0;
+    int draws = 0;
     Bundle bundle;
     Player player1;
     Player player2;
     TextView playerTurn;
+    TextView p1Name;
+    TextView p2Name;
+    TextView player1Score;
+    TextView player2Score;
+    TextView drawScore;
+    String filePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,14 +50,28 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        bundle = this.getIntent().getExtras();
+        bundle = this.getIntent().getExtras();//Create players from previous activity
         player1 = bundle.getParcelable("player1");
         player2 = bundle.getParcelable("player2");
-        playerTurn = (TextView) findViewById(R.id.playerTurn);
+
+        playerTurn = (TextView) findViewById(R.id.playerTurn);//Initialises to player1 turn
         playerTurn.setText(player1.getName() + "'s Turn");
 
+        p1Name = (TextView) findViewById(R.id.p1Name);//Sets up player names
+        p1Name.setText(player1.getName());
+        player1Score = (TextView) findViewById(R.id.p1Score);
+        player1Score.setText(Integer.toString(player1.getScore()));
+
+        p2Name = (TextView) findViewById(R.id.p2Name);
+        p2Name.setText(player2.getName());
+        player2Score = (TextView) findViewById(R.id.p2Score);
+        player2Score.setText(Integer.toString(player2.getScore()));
+
+        drawScore = (TextView) findViewById(R.id.drawScore);//Initialises number of draws
+        drawScore.setText(Integer.toString(draws));
+
         a1 = (Button) findViewById(R.id.A1); // Linking the button variables
-        a2 = (Button) findViewById(R.id.A2); //by ID with buttons created created.
+        a2 = (Button) findViewById(R.id.A2); //by ID with buttons created.
         a3 = (Button) findViewById(R.id.A3);
         b1 = (Button) findViewById(R.id.B1);
         b2 = (Button) findViewById(R.id.B2);
@@ -46,10 +80,13 @@ public class MainActivity extends AppCompatActivity {
         c2 = (Button) findViewById(R.id.C2);
         c3 = (Button) findViewById(R.id.C3);
         newGame = (Button) findViewById(R.id.newGame);
+        endGame = (Button) findViewById(R.id.endGame);
+        quitGame = (Button) findViewById(R.id.quitGame);
 
         buttons = new Button[]{a1, a2, a3, b1, b2, b3, c1, c2, c3}; //Button array to hold all
                                                                     //buttons created.
-        for (Button b : buttons) {
+
+        /*for (Button b : buttons) {
             b.setOnClickListener(new View.OnClickListener() { //Creates and on click listener for
                                                               //each button in the array.
                 @Override
@@ -58,16 +95,72 @@ public class MainActivity extends AppCompatActivity {
                     buttonClicked(b);
                 }
             });
-        }
+        }*/
         newGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 resetGame();
             }
         });
+
+        endGame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {//Ends game and write player name and score to file
+                String scores = "";
+                scores += player1.getName().toString() + " " + Integer.toString(player1.getScore()) + "\n";
+                scores += player2.getName().toString() + " " + Integer.toString(player2.getScore()) + "\n";
+                FileOutputStream fos = null;
+
+                try {
+                    fos = openFileOutput("highscores.txt", Context.MODE_APPEND);
+                    try {
+                        fos.write(scores.getBytes());
+                        fos.flush();
+                        fos.close();     //Close file writer
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                //Allows user to move to highscores page
+                Intent nextPage = new Intent(MainActivity.this, Highscore.class);
+
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("player1", player1);
+                bundle.putParcelable("player2", player2);
+                nextPage.putExtras(bundle);
+
+                startActivity(nextPage);
+            }
+        });
     }
 
-    public void resetGame() {
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {//Check screen config
+        super.onConfigurationChanged(newConfig);
+        if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            message("Changed to Portrait View");
+            setContentView(R.layout.activity_main);
+        }
+
+        else {
+            message("Changed to Landscape View");
+            setContentView(R.layout.activity_main);
+        }
+    }
+
+    public void buttonClick(View view) {//Performs buttonclicked method when button is clicked
+        buttonClicked((Button) view);
+    }
+
+    public void backButtonClick(View view) {//Goes back when back button is clicked
+        finish();
+        System.exit(0);
+    }
+
+    public void resetGame() {//Resets game and removes all X's and O's from screen
         for(Button b : buttons) {
             b.setText("");
             b.setClickable(true);
@@ -108,22 +201,24 @@ public class MainActivity extends AppCompatActivity {
         if(winnerFound) { //Congratulates the winner.
             if(xTurn) {
                 message(player2.getName() + " Wins!");
-                player1.win();
+                player2.win();
+                player2Score.setText(Integer.toString(player2.getScore()));
                 endGame();
             }
             else {
                 message(player1.getName() + " Wins!");
-                player2.win();
+                player1.win();
+                player1Score.setText(Integer.toString(player1.getScore()));
                 endGame();
             }
         }
     }
 
-    private void message(String message) {
+    private void message(String message) {//Message pops up for user
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    private void nextTurn() {
+    private void nextTurn() {//Switches to next players turn
         if(xTurn) {
             xTurn = !xTurn;
             playerTurn.setText(player2.getName() + "'s Turn");
@@ -134,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void checkForWinner() {
+    private void checkForWinner() {//Checks if there are 3 X's or O's in a row/column/diagonal
 
         if(a1.getText() == a2.getText() && a1.getText() == a3.getText() && a1.getText() != "") {
             winnerFound = true;
@@ -162,15 +257,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void endGame() {
+    private void endGame() {//Sets all buttons to unclickable
         for(Button b : buttons) {
             b.setClickable(false);
         }
     }
 
-    private void checkForDraw() {
+    private void checkForDraw() { //Checks if board is full and there is no winner
         if(numTurns == 9 && !winnerFound) {
             message("Draw!");
+            draws++;
+            drawScore.setText(Integer.toString(draws));
             endGame();
         }
     }
