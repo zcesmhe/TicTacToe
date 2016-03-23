@@ -59,7 +59,8 @@
         android:id="@+id/play"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:onClick="playButtonMethod"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -68,7 +69,8 @@
         android:id="@+id/highscores"
         android:layout_above="@+id/player2"
         android:layout_alignRight="@+id/play"
-        android:layout_alignEnd="@+id/play" />
+        android:layout_alignEnd="@+id/play"
+        android:onClick="highscoreButtonMethod"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -77,6 +79,7 @@
         android:id="@+id/quit"
         android:layout_below="@+id/player2"
         android:layout_alignRight="@+id/highscores"
-        android:layout_alignEnd="@+id/highscores" />
+        android:layout_alignEnd="@+id/highscores"
+        android:onClick="quitButtonMethod"/>
 
 </RelativeLayout>
